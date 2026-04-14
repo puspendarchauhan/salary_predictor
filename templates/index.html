@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Salary Predictor</title>
+
+<style>
+/* 🔥 Animated Background */
+body {
+    margin: 0;
+    font-family: Arial;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(-45deg, #36d1dc, #5b86e5, #ff6a00, #ee0979);
+    background-size: 400% 400%;
+    animation: gradientBG 10s ease infinite;
+}
+
+@keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Card */
+.card {
+    width: 750px;
+    display: flex;
+    padding: 30px;
+    border-radius: 20px;
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(15px);
+    gap: 20px;
+    color: white;
+}
+
+/* Layout */
+.left, .right {
+    flex: 1;
+}
+
+/* Inputs */
+input, select {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 10px;
+    border: none;
+}
+
+/* Button */
+button {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    background: #00c6ff;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+button:hover {
+    background: #0072ff;
+}
+
+/* Result */
+.result-box {
+    background: rgba(0,0,0,0.3);
+    padding: 20px;
+    border-radius: 15px;
+    margin-top: 20px;
+    min-height: 80px;
+}
+
+/* 🔄 Loader */
+.loader {
+    display: none;
+    border: 5px solid #fff;
+    border-top: 5px solid #00c6ff;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+</style>
+
+<script>
+function showLoader() {
+    document.getElementById("loader").style.display = "block";
+}
+</script>
+
+</head>
+
+<body>
+
+<div class="card">
+
+    <!-- LEFT -->
+    <div class="left">
+        <h2>💼 Salary Predictor</h2>
+
+        <form action="/predict" method="POST" onsubmit="showLoader()">
+
+            <input type="text" name="name" placeholder="Enter Your Name" required>
+
+            <select name="job_role" required>
+                <option value="">Select Job Role</option>
+                <option>Data Scientist</option>
+                <option>Software Engineer</option>
+                <option>Data Analyst</option>
+                <option>ML Engineer</option>
+                <option>Business Analyst</option>
+            </select>
+
+            <select name="gender">
+                <option>Male</option>
+                <option>Female</option>
+            </select>
+
+            <input type="number" name="experience" placeholder="Years of Experience" required min="0">
+
+            <button type="submit">🚀 Predict Salary</button>
+        </form>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="right">
+        <h3>📊 Result</h3>
+
+        <!-- Loader -->
+        <div id="loader" class="loader"></div>
+
+        <!-- Result -->
+        <div class="result-box">
+            {{ prediction_text }}
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>
