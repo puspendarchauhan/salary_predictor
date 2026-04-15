@@ -28,7 +28,6 @@ X_train, X_test, y_train, y_test = train_test_split(
 # STEP 6: Train model
 model = LinearRegression()
 model.fit(X_train, y_train)
-
 # STEP 7: Prediction
 y_pred = model.predict(X_test)
 
@@ -40,9 +39,6 @@ print("\nModel Performance:")
 print("MAE:", mae)
 print("R2 Score:", r2)
 
-# =========================
-# STEP 9: Save Model
-# =========================
 
 import os
 
