@@ -1,19 +1,29 @@
+
 from flask import Flask, render_template, request, jsonify
 import pandas as pd
 import pickle
+import os
 
-app = Flask(__name__)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# Load model
-with open('model/model.pkl', 'rb') as f:
+app = Flask(
+    __name__,
+    template_folder=os.path.join(BASE_DIR, 'templates')
+)
+
+# Absolute paths for model files
+MODEL_PATH = os.path.join(BASE_DIR, 'model', 'model.pkl')
+COLUMNS_PATH = os.path.join(BASE_DIR, 'model', 'columns.pkl')
+METRICS_PATH = os.path.join(BASE_DIR, 'model', 'metrics.pkl')
+
+# Load model files
+with open(MODEL_PATH, 'rb') as f:
     model = pickle.load(f)
 
-# Load columns
-with open('model/columns.pkl', 'rb') as f:
+with open(COLUMNS_PATH, 'rb') as f:
     model_columns = pickle.load(f)
 
-# Load metrics
-with open('model/metrics.pkl', 'rb') as f:
+with open(METRICS_PATH, 'rb') as f:
     metrics = pickle.load(f)
 
 MODEL_ACCURACY = metrics['accuracy_percent']
@@ -80,51 +90,33 @@ def predict():
         }
 
         df = pd.DataFrame(input_data)
-
-        # Same encoding as training
         df = pd.get_dummies(df)
 
-        # Add missing columns
         for col in model_columns:
             if col not in df.columns:
                 df[col] = 0
 
-        # Exact order
         df = df.reindex(columns=model_columns, fill_value=0)
 
-        # Prediction
-        prediction = model.predict(df)[0]
+        prediction = float(model.predict(df)[0])
 
-        # If your dataset is in lakhs or smaller values,
-        # adjust multiplier here. Start with 1 first.
-        predicted_salary = float(prediction)
+        if prediction < 100000:
+            prediction *= 10
 
-        # Optional correction if values too low
-        if predicted_salary < 100000:
-            predicted_salary *= 10
-
-        if predicted_salary < 0:
-            predicted_salary = 0
-
-        min_salary = predicted_salary * 0.9
-        max_salary = predicted_salary * 1.1
-        monthly_salary = predicted_salary / 12
+        if prediction < 0:
+            prediction = 0
 
         return jsonify({
-            "predicted_salary": round(predicted_salary, 2),
-            "monthly_salary": round(monthly_salary, 2),
-            "min_salary": round(min_salary, 2),
-            "max_salary": round(max_salary, 2),
-            "accuracy": MODEL_ACCURACY,
-            "mae": MODEL_MAE,
-            "r2": MODEL_R2
+            'predicted_salary': round(prediction, 2),
+            'monthly_salary': round(prediction / 12, 2),
+            'min_salary': round(prediction * 0.9, 2),
+            'max_salary': round(prediction * 1.1, 2),
+            'accuracy': MODEL_ACCURACY,
+            'r2': MODEL_R2,
+            'mae': MODEL_MAE
         })
 
     except Exception as e:
         return jsonify({
-            "message": str(e)
+            'message': str(e)
         }), 500
-
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
