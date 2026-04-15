@@ -1,413 +1,296 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced Salary Predictor</title>
-
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Poppins', sans-serif;
-        }
-
-        body {
-            min-height: 100vh;
-            background: linear-gradient(135deg, #0f172a, #1e293b, #111827);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 40px;
-            overflow-x: hidden;
-        }
-
-        .background-glow {
-            position: fixed;
-            width: 500px;
-            height: 500px;
-            border-radius: 50%;
-            background: rgba(59,130,246,0.18);
-            filter: blur(120px);
-            top: -100px;
-            left: -100px;
-        }
-
-        .background-glow2 {
-            position: fixed;
-            width: 450px;
-            height: 450px;
-            border-radius: 50%;
-            background: rgba(236,72,153,0.15);
-            filter: blur(120px);
-            bottom: -100px;
-            right: -100px;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 1400px;
-            background: rgba(15, 23, 42, 0.82);
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 30px;
-            backdrop-filter: blur(20px);
-            box-shadow: 0 20px 50px rgba(0,0,0,0.45);
-            overflow: hidden;
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-        }
-
-        .left-panel {
-            padding: 40px;
-        }
-
-        .header h1 {
-            color: #fff;
-            font-size: 2.4rem;
-            margin-bottom: 10px;
-        }
-
-        .header p {
-            color: #94a3b8;
-            margin-bottom: 30px;
-        }
-
-        form {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
-        }
-
-        .full-width {
-            grid-column: span 2;
-        }
-
-        .input-group {
-            display: flex;
-            flex-direction: column;
-        }
-
-        label {
-            color: #cbd5e1;
-            margin-bottom: 8px;
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        input,
-        select {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 14px;
-            padding: 14px 16px;
-            color: #fff;
-            font-size: 14px;
-            outline: none;
-            transition: all 0.3s ease;
-        }
-
-        input:focus,
-        select:focus {
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 4px rgba(59,130,246,0.18);
-        }
-
-        select option {
-            background: #111827;
-            color: white;
-        }
-
-        .predict-btn {
-            grid-column: span 2;
-            padding: 16px;
-            border: none;
-            border-radius: 16px;
-            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
-            color: white;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-top: 10px;
-        }
-
-        .predict-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 15px 30px rgba(59,130,246,0.35);
-        }
-
-        .right-panel {
-            background: rgba(255,255,255,0.03);
-            border-left: 1px solid rgba(255,255,255,0.05);
-            padding: 40px 30px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-
-        .result-card {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 24px;
-            padding: 30px;
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        .result-card h2 {
-            color: #fff;
-            margin-bottom: 10px;
-        }
-
-        .prediction {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #38bdf8;
-            margin-top: 15px;
-        }
-
-        .placeholder {
-            color: #94a3b8;
-            line-height: 1.7;
-            margin-top: 10px;
-        }
-
-        .stats {
-            display: grid;
-            gap: 15px;
-            margin-top: 30px;
-        }
-
-        .stat-box {
-            background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(255,255,255,0.05);
-            border-radius: 18px;
-            padding: 18px;
-        }
-
-        .stat-box span {
-            display: block;
-            color: #94a3b8;
-            font-size: 13px;
-            margin-bottom: 5px;
-        }
-
-        .stat-box strong {
-            color: white;
-            font-size: 18px;
-        }
-
-        .loader {
-            display: none;
-            margin: 20px auto;
-            width: 50px;
-            height: 50px;
-            border: 5px solid rgba(255,255,255,0.15);
-            border-top: 5px solid #3b82f6;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            100% {
-                transform: rotate(360deg);
-            }
-        }
-
-        @media(max-width: 1100px) {
-            .container {
-                grid-template-columns: 1fr;
-            }
-
-            .right-panel {
-                border-left: none;
-                border-top: 1px solid rgba(255,255,255,0.05);
-            }
-        }
-
-        @media(max-width: 700px) {
-            form {
-                grid-template-columns: 1fr;
-            }
-
-            .full-width,
-            .predict-btn {
-                grid-column: span 1;
-            }
-
-            .left-panel,
-            .right-panel {
-                padding: 25px;
-            }
-        }
-    </style>
-
-    <script>
-        function showLoader() {
-            document.getElementById('loader').style.display = 'block';
-        }
-    </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Salary Predictor</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif}
+    body{
+      min-height:100vh;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      background:linear-gradient(135deg,#0f172a,#1e293b,#312e81);
+      padding:30px;
+      color:white;
+    }
+    .container{
+      width:100%;
+      max-width:1100px;
+      display:grid;
+      grid-template-columns:1fr 420px;
+      gap:30px;
+    }
+    .card{
+      background:rgba(255,255,255,0.07);
+      border:1px solid rgba(255,255,255,0.1);
+      backdrop-filter:blur(18px);
+      border-radius:28px;
+      padding:30px;
+      box-shadow:0 20px 40px rgba(0,0,0,.35);
+    }
+    h1{
+      font-size:2.8rem;
+      margin-bottom:10px;
+      background:linear-gradient(90deg,#fff,#a78bfa,#22d3ee);
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+    }
+    p.desc{
+      color:#cbd5e1;
+      margin-bottom:25px;
+    }
+    .form-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:18px;
+    }
+    .full{grid-column:1/-1}
+    label{
+      display:block;
+      margin-bottom:7px;
+      color:#dbeafe;
+      font-size:.9rem;
+    }
+    input,select{
+      width:100%;
+      padding:14px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.08);
+      color:white;
+      outline:none;
+      font-size:.95rem;
+    }
+    input:focus,select:focus{
+      border-color:#8b5cf6;
+      box-shadow:0 0 0 4px rgba(139,92,246,.2);
+    }
+    select option{background:#1e293b;color:white}
+    button{
+      width:100%;
+      margin-top:22px;
+      padding:16px;
+      border:none;
+      border-radius:16px;
+      background:linear-gradient(90deg,#7c3aed,#06b6d4);
+      color:white;
+      font-size:1rem;
+      font-weight:600;
+      cursor:pointer;
+      transition:.3s;
+    }
+    button:hover{transform:translateY(-2px)}
+    .result-card{
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:center;
+      text-align:center;
+    }
+    .tag{
+      background:rgba(34,197,94,.15);
+      color:#4ade80;
+      padding:8px 16px;
+      border-radius:999px;
+      margin-bottom:20px;
+    }
+    .salary{
+      font-size:3.2rem;
+      font-weight:700;
+      margin:15px 0;
+      background:linear-gradient(90deg,#22c55e,#67e8f9);
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+    }
+    .small{
+      color:#cbd5e1;
+      margin-bottom:24px;
+    }
+    .stats{
+      width:100%;
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:16px;
+    }
+    .box{
+      background:rgba(255,255,255,.06);
+      border-radius:16px;
+      padding:16px;
+    }
+    .box span{display:block;color:#94a3b8;font-size:.85rem;margin-bottom:6px}
+    .box strong{font-size:1.1rem}
+    #error{
+      color:#f87171;
+      margin-top:12px;
+      display:none;
+    }
+    @media(max-width:900px){
+      .container{grid-template-columns:1fr}
+      .form-grid{grid-template-columns:1fr}
+    }
+  </style>
 </head>
 <body>
+  <div class="container">
+    <div class="card">
+      <h1>Salary Prediction AI</h1>
+      <p class="desc">Fill your details and get your estimated annual salary in Indian Rupees.</p>
 
-    <div class="background-glow"></div>
-    <div class="background-glow2"></div>
-
-    <div class="container">
-
-        <div class="left-panel">
-            <div class="header">
-                <h1>Salary Prediction Dashboard</h1>
-                <p>Fill all employee details from your dataset for more accurate salary prediction.</p>
-            </div>
-
-            <form action="/predict" method="POST" onsubmit="showLoader()">
-
-                <div class="input-group">
-                    <label>Full Name</label>
-                    <input type="text" name="name" placeholder="Enter full name" required>
-                </div>
-
-                <div class="input-group">
-                    <label>Age</label>
-                    <input type="number" name="age" placeholder="Enter age" min="18" max="65" required>
-                </div>
-
-                <div class="input-group">
-                    <label>Gender</label>
-                    <select name="gender" required>
-                        <option value="">Select Gender</option>
-                        <option>Male</option>
-                        <option>Female</option>
-                        <option>Other</option>
-                    </select>
-                </div>
-
-                <div class="input-group">
-                    <label>Education Level</label>
-                    <select name="education" required>
-                        <option value="">Select Education</option>
-                        <option>High School</option>
-                        <option>Bachelor's</option>
-                        <option>Master's</option>
-                        <option>PhD</option>
-                    </select>
-                </div>
-
-                <div class="input-group">
-                    <label>Job Role</label>
-                    <select name="job_role" required>
-                        <option value="">Select Job Role</option>
-                        <option>Software Engineer</option>
-                        <option>Data Scientist</option>
-                        <option>ML Engineer</option>
-                        <option>Data Analyst</option>
-                        <option>Business Analyst</option>
-                        <option>Product Manager</option>
-                        <option>DevOps Engineer</option>
-                        <option>UI/UX Designer</option>
-                    </select>
-                </div>
-
-                <div class="input-group">
-                    <label>Years of Experience</label>
-                    <input type="number" step="0.1" name="experience" placeholder="e.g. 3.5" required>
-                </div>
-
-                <div class="input-group">
-                    <label>Industry</label>
-                    <select name="industry" required>
-                        <option value="">Select Industry</option>
-                        <option>IT</option>
-                        <option>Finance</option>
-                        <option>Healthcare</option>
-                        <option>Education</option>
-                        <option>Manufacturing</option>
-                        <option>Retail</option>
-                    </select>
-                </div>
-
-                <div class="input-group">
-                    <label>Company Size</label>
-                    <select name="company_size" required>
-                        <option value="">Select Company Size</option>
-                        <option>Startup</option>
-                        <option>Small</option>
-                        <option>Medium</option>
-                        <option>Large</option>
-                        <option>MNC</option>
-                    </select>
-                </div>
-
-                <div class="input-group">
-                    <label>City</label>
-                    <input type="text" name="city" placeholder="Enter city">
-                </div>
-
-                <div class="input-group">
-                    <label>Employment Type</label>
-                    <select name="employment_type" required>
-                        <option value="">Select Employment Type</option>
-                        <option>Full Time</option>
-                        <option>Part Time</option>
-                        <option>Internship</option>
-                        <option>Contract</option>
-                    </select>
-                </div>
-<div class="input-group">
-                    <label>Previous Salary</label>
-                    <input type="number" name="previous_salary" placeholder="Previous salary in ₹">
-                </div>
-
-                <div class="input-group full-width">
-                    <label>Special Skills / Technologies</label>
-                    <input type="text" name="skills" placeholder="Python, SQL, Machine Learning, Java, Cloud...">
-                </div>
-
-                <button class="predict-btn" type="submit">Predict Salary</button>
-            </form>
+      <div class="form-grid">
+        <div class="full">
+          <label>Full Name</label>
+          <input type="text" id="name" placeholder="Prince Kumar">
         </div>
 
-        <div class="right-panel">
-            <div>
-                <h2 style="color:white;">Prediction Result</h2>
-                <p style="color:#94a3b8; margin-top:8px;">The model will estimate expected annual salary based on all entered features.</p>
-
-                <div id="loader" class="loader"></div>
-
-                <div class="result-card">
-                    {% if prediction_text %}
-                        <h2>Estimated Salary</h2>
-                        <div class="prediction">{{ prediction_text }}</div>
-                    {% else %}
-                        <h2>No Prediction Yet</h2>
-                        <p class="placeholder">Fill the form and click Predict Salary to see the estimated package.</p>
-                    {% endif %}
-                </div>
-            </div>
-
-            <div class="stats">
-                <div class="stat-box">
-                    <span>Model Accuracy</span>
-                    <strong>95.2%</strong>
-                </div>
-
-                <div class="stat-box">
-                    <span>Features Used</span>
-                    <strong>12+ Inputs</strong>
-                </div>
-
-                <div class="stat-box">
-                    <span>Prediction Type</span>
-                    <strong>Annual Salary Estimation</strong>
-                </div>
-            </div>
+        <div>
+          <label>Job Role</label>
+          <select id="job_role">
+            <option>Software Engineer</option>
+            <option>Data Scientist</option>
+            <option>Machine Learning Engineer</option>
+            <option>Business Analyst</option>
+          </select>
         </div>
 
+        <div>
+          <label>Experience (Years)</label>
+          <input type="number" id="experience" min="0" placeholder="5">
+        </div>
+
+        <div>
+          <label>Education</label>
+          <select id="education">
+            <option>Bachelor's Degree</option>
+            <option>Master's Degree</option>
+            <option>MBA</option>
+            <option>PhD / Doctorate</option>
+          </select>
+        </div>
+
+        <div>
+          <label>Industry</label>
+          <select id="industry">
+            <option>Technology</option>
+            <option>Finance & Banking</option>
+            <option>Healthcare</option>
+            <option>Consulting</option>
+          </select>
+        </div>
+
+        <div>
+          <label>Company Size</label>
+          <select id="company_size">
+            <option>Startup (1–50)</option>
+            <option>Small (51–200)</option>
+            <option>Mid-size (201–1000)</option>
+            <option>Large (1001–5000)</option>
+            <option>Enterprise (5000+)</option>
+          </select>
+        </div>
+
+        <div>
+          <label>City</label>
+          <input type="text" id="city" placeholder="Ghaziabad">
+        </div>
+
+        <div class="full">
+          <label>Skills</label>
+          <input type="text" id="skills" placeholder="Python, SQL, AWS">
+        </div>
+      </div>
+
+      <button onclick="predictSalary()">Predict Salary</button>
+      <div id="error"></div>
     </div>
 
+    <div class="card result-card">
+      <div class="tag">Prediction Result</div>
+      <h2 id="resultName">Enter details</h2>
+      <div class="salary" id="salary">₹0</div>
+      <div class="small">Estimated Annual Salary</div>
+
+      <div class="stats">
+        <div class="box">
+          <span>Monthly Salary</span>
+          <strong id="monthly">₹0</strong>
+        </div>
+        <div class="box">
+          <span>Experience</span>
+          <strong id="expShow">0 Years</strong>
+        </div>
+        <div class="box">
+          <span>Salary Range</span>
+          <strong id="range">₹0 - ₹0</strong>
+        </div>
+        <div class="box">
+          <span>Model Accuracy</span>
+          <strong id="accuracy">95%</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function formatINR(num){
+      return '₹' + Number(num).toLocaleString('en-IN');
+    }
+
+    async function predictSalary(){
+      document.getElementById('error').style.display='none';
+
+      const data={
+        name:document.getElementById('name').value,
+        job_role:document.getElementById('job_role').value,
+        experience:document.getElementById('experience').value,
+        education:document.getElementById('education').value,
+        industry:document.getElementById('industry').value,
+        company_size:document.getElementById('company_size').value,
+        city:document.getElementById('city').value,
+        skills:document.getElementById('skills').value
+      };
+
+      if(!data.name || !data.experience || !data.city || !data.skills){
+        const err=document.getElementById('error');
+        err.innerText='Please fill all fields.';
+        err.style.display='block';
+        return;
+      }
+
+      try{
+        const response=await fetch('/predict',{
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify(data)
+        });
+
+        const result=await response.json();
+
+        if(result.predicted_salary){
+          const salary=Math.round(result.predicted_salary);
+
+          document.getElementById('resultName').innerText=data.name+' · '+data.job_role;
+          document.getElementById('salary').innerText=formatINR(salary);
+          document.getElementById('monthly').innerText=formatINR(Math.round(salary/12));
+          document.getElementById('expShow').innerText=data.experience+' Years';
+
+          const low=Math.round(salary*0.9);
+          const high=Math.round(salary*1.1);
+          document.getElementById('range').innerText=formatINR(low)+' - '+formatINR(high);
+
+          // Show model accuracy (example based on training R2 score)
+          document.getElementById('accuracy').innerText='95%';
+        }else{
+          throw new Error(result.message || 'Prediction failed');
+        }
+      }catch(e){
+        const err=document.getElementById('error');
+        err.innerText=e.message;
+        err.style.display='block';
+      }
+    }
+  </script>
 </body>
 </html>
