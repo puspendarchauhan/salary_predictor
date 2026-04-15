@@ -1,59 +1,60 @@
 import pandas as pd
 import pickle
+import os
 
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_absolute_error, r2_score
 
-# STEP 1: Load dataset
+# Load dataset
 data = pd.read_csv('data/job_salary_prediction_dataset.csv')
 
-print("Dataset Preview:\n", data.head())
-
-# STEP 2: Drop missing values
+# Remove missing values
 data = data.dropna()
 
-# STEP 3: Separate target
+# Target and features
 y = data['salary']
 X = data.drop('salary', axis=1)
 
-# STEP 4: One-Hot Encoding (VERY IMPORTANT)
+# One-hot encoding
 X = pd.get_dummies(X)
 
-# STEP 5: Train-test split
+# Train-test split
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.2, random_state=42
 )
 
-# STEP 6: Train model
+# Train model
 model = LinearRegression()
 model.fit(X_train, y_train)
-# STEP 7: Prediction
+
+# Predict on test set
 y_pred = model.predict(X_test)
 
-# STEP 8: Evaluation
+# Metrics
 mae = mean_absolute_error(y_test, y_pred)
 r2 = r2_score(y_test, y_pred)
 
-print("\nModel Performance:")
 print("MAE:", mae)
 print("R2 Score:", r2)
 
+# Convert R2 into percentage for UI
+accuracy_percent = round(r2 * 100, 2)
 
-import os
-
-# Create model folder if it doesn't exist
+# Save everything
 os.makedirs('model', exist_ok=True)
 
-import pickle
-
-# Save model
 with open('model/model.pkl', 'wb') as f:
     pickle.dump(model, f)
 
-# Save columns (important for prediction)
 with open('model/columns.pkl', 'wb') as f:
     pickle.dump(X.columns, f)
 
-print("\nModel saved successfully!")
+with open('model/metrics.pkl', 'wb') as f:
+    pickle.dump({
+        'mae': float(mae),
+        'r2': float(r2),
+        'accuracy_percent': accuracy_percent
+    }, f)
 
+print("Model, columns and metrics saved successfully!")

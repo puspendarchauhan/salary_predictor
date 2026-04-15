@@ -4,16 +4,21 @@ import pickle
 
 app = Flask(__name__)
 
-# Load trained model
+# Load model
 with open('model/model.pkl', 'rb') as f:
     model = pickle.load(f)
 
-# Load columns used during training
+# Load columns
 with open('model/columns.pkl', 'rb') as f:
     model_columns = pickle.load(f)
 
-# Model accuracy from training
-MODEL_ACCURACY = 95
+# Load metrics
+with open('model/metrics.pkl', 'rb') as f:
+    metrics = pickle.load(f)
+
+MODEL_ACCURACY = metrics['accuracy_percent']
+MODEL_R2 = round(metrics['r2'], 4)
+MODEL_MAE = round(metrics['mae'], 2)
 
 
 @app.route('/')
@@ -26,7 +31,6 @@ def predict():
     try:
         data = request.get_json()
 
-        # Map frontend values to dataset values
         education_map = {
             "High School": "High School",
             "Associate Degree": "Associate",
@@ -57,14 +61,12 @@ def predict():
             "Government": "Government"
         }
 
-        # Count entered skills
         skill_count = len([
             skill.strip()
             for skill in data['skills'].split(',')
             if skill.strip()
         ])
 
-        # Create input matching training dataset
         input_data = {
             'job_title': [data['job_role']],
             'experience_years': [float(data['experience'])],
@@ -77,10 +79,9 @@ def predict():
             'certifications': [1 if skill_count >= 3 else 0]
         }
 
-        # Convert to dataframe
         df = pd.DataFrame(input_data)
 
-        # Apply one-hot encoding like training
+        # Same encoding as training
         df = pd.get_dummies(df)
 
         # Add missing columns
@@ -88,33 +89,40 @@ def predict():
             if col not in df.columns:
                 df[col] = 0
 
-        # Reorder columns exactly like training
+        # Exact order
         df = df.reindex(columns=model_columns, fill_value=0)
 
-        # Predict salary
+        # Prediction
         prediction = model.predict(df)[0]
 
-        # Scale prediction because dataset values are smaller than INR range
-        predicted_salary = float(prediction) * 10
+        # If your dataset is in lakhs or smaller values,
+        # adjust multiplier here. Start with 1 first.
+        predicted_salary = float(prediction)
 
-        # Prevent invalid values
+        # Optional correction if values too low
+        if predicted_salary < 100000:
+            predicted_salary *= 10
+
         if predicted_salary < 0:
             predicted_salary = 0
 
-        # Create salary range ±10%
         min_salary = predicted_salary * 0.9
         max_salary = predicted_salary * 1.1
+        monthly_salary = predicted_salary / 12
 
         return jsonify({
             "predicted_salary": round(predicted_salary, 2),
+            "monthly_salary": round(monthly_salary, 2),
             "min_salary": round(min_salary, 2),
             "max_salary": round(max_salary, 2),
-            "accuracy": MODEL_ACCURACY
+            "accuracy": MODEL_ACCURACY,
+            "mae": MODEL_MAE,
+            "r2": MODEL_R2
         })
 
     except Exception as e:
         return jsonify({
-            "message": f"Prediction failed: {str(e)}"
+            "message": str(e)
         }), 500
 
 
